@@ -1,0 +1,38 @@
+{
+  "include": ["./src", "environment.d.ts"],
+  "exclude": [
+    "node_modules", 
+    "dist"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    "lib": ["esnext"],
+    "types": ["node"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "inlineSourceMap": false,
+    "listEmittedFiles": false,
+    "listFiles": false,
+    "pretty": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "traceResolution": false,
+
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "compileOnSave": false
+}

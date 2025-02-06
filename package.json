@@ -1,0 +1,51 @@
+{
+  "name": "ecom-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc && tsc-alias -p tsconfig.json",
+    "start": "node dist/server.js",
+    "migration:create": "mikro-orm migration:create",
+    "migration:up": "mikro-orm migration:up"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^10.0.2",
+    "@mikro-orm/core": "^6.4.5",
+    "@mikro-orm/migrations": "^6.4.5",
+    "@mikro-orm/postgresql": "^6.4.5",
+    "@mikro-orm/reflection": "^6.4.5",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mikro-orm": "^6.4.5"
+  },
+  "devDependencies": {
+    "@mikro-orm/cli": "^6.4.5",
+    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.8",
+    "@types/module-alias": "^2.0.4",
+    "@types/node": "^22.13.1",
+    "@types/nodemailer": "^6.4.17",
+    "module-alias": "^2.2.3",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3"
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "tsConfigPath": "./database/tsconfig.orm.json",
+    "configPaths": [
+      "./database/mikro-orm.config.ts"
+    ]
+  }
+}
