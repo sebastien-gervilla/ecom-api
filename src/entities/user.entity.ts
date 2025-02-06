@@ -1,5 +1,6 @@
+import { entities } from '.';
 import { Interfaces } from '../interfaces';
-import { Entity, Enum, PrimaryKey, Property } from '@mikro-orm/postgresql';
+import { Collection, Entity, Enum, OneToMany, PrimaryKey, Property } from '@mikro-orm/postgresql';
 
 @Entity()
 export class UserEntity {
@@ -20,6 +21,9 @@ export class UserEntity {
 
     @Enum(() => Interfaces.Users.Role)
     role!: Interfaces.Users.Role;
+
+    @OneToMany(() => entities.order, collection => collection.user)
+    orders = new Collection<entities.orderProduct>(this);
 
     @Property({ type: Date })
     createdAt: Date = new Date();

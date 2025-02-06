@@ -1,5 +1,5 @@
 import { Interfaces } from '../interfaces';
-import { Collection, Entity, OneToMany, PrimaryKey, Property } from '@mikro-orm/postgresql';
+import { Collection, Entity, ManyToOne, OneToMany, PrimaryKey, Property } from '@mikro-orm/postgresql';
 import { entities } from '.';
 
 @Entity()
@@ -9,6 +9,9 @@ export class OrderEntity {
 
     @OneToMany(() => entities.orderProduct, collection => collection.order)
     products = new Collection<entities.orderProduct>(this);
+
+    @ManyToOne(() => entities.user)
+    user!: entities.user;
 
     @Property()
     status!: Interfaces.Orders.Status;
