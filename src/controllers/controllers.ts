@@ -1,0 +1,1 @@
+export { userController as user } from './user.controller';
