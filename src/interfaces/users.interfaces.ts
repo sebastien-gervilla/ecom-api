@@ -1,3 +1,20 @@
+export interface Get {
+    body: {
+        id: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+        role: Role;
+    }[];
+}
+
+export interface GetRequest {
+    query: {
+        page: number;
+        pageSize: number;
+    }
+}
+
 export interface Register {
     body: {
         firstName: string;
@@ -21,5 +38,7 @@ export enum Role {
 
 export interface JWTPayload {
     id: number;
+    firstName: string;
+    lastName: string;
     role: Role;
 }

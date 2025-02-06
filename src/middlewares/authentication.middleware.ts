@@ -14,7 +14,7 @@ export const authentication = (request: FastifyRequest, reply: FastifyReply, don
         const decoded = jwt.verify(token, environment.jwtSecret) as Interfaces.Users.JWTPayload;
 
         // @ts-ignore
-        request.raw = decoded;
+        request.user = decoded;
 
         done();
     } catch (error) {

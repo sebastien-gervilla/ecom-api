@@ -8,10 +8,59 @@ import { environment } from "@/configuration/environment";
 import { middlewares } from "@/middlewares";
 
 export const userController = async (
-    fastify: FastifyInstance, 
+    fastify: FastifyInstance,
     _: FastifyPluginOptions,
     orm: MikroORM
 ) => {
+    fastify.get('/users', { preHandler: middlewares.authentication }, async (request, reply) => {
+
+        // @ts-ignore
+        const currentUser: Interfaces.Users.JWTPayload = request.user;
+        if (!currentUser || currentUser.role !== Interfaces.Users.Role.ADMINISTRATOR)
+            return reply.status(403).send("Not allowed");
+
+        const {
+            page = 1,
+            pageSize = 50,
+        } = request.query as Interfaces.Users.GetRequest['query'];
+
+        if (page < 0 || pageSize < 0)
+            return reply.status(400).send("Page and pageSize must be positive");
+
+        const em = orm.em.fork();
+
+        const loadedUsers = await em.findAll(
+            entities.user,
+        );
+
+        const totalRecords = loadedUsers.length;
+        const pages = Math.floor(totalRecords / pageSize) + 1;
+
+        const users: Interfaces.Users.Get['body'] = loadedUsers
+            .slice((page - 1) * pageSize, page * pageSize)
+            .map(user => ({
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role,
+            }));
+
+        return reply
+            .status(200)
+            .send({
+                data: users,
+                meta: {
+                    pagination: {
+                        page,
+                        pages,
+                        pageSize,
+                        totalRecords,
+                    }
+                }
+            });
+    });
+
     fastify.post('/users/register', async (request, reply) => {
 
         const {
@@ -28,8 +77,8 @@ export const userController = async (
 
         const existingUser = await em.findOne(
             entities.user, {
-                email
-            },
+            email
+        },
         );
 
         if (existingUser)
@@ -47,7 +96,7 @@ export const userController = async (
 
         return reply.status(201).send({ message: 'User successfully registered.' });
     });
-    
+
     fastify.post('/users/login', async (request, reply) => {
 
         const {
@@ -60,11 +109,9 @@ export const userController = async (
         if (!email || !password)
             return reply.status(400).send('Missing required fields');
 
-        const user = await em.findOne(
-            entities.user, {
-                email
-            },
-        );
+        const user = await em.findOne(entities.user, {
+            email
+        });
 
         if (!user)
             return reply.status(400).send('Invalid credentials');
@@ -73,11 +120,15 @@ export const userController = async (
         if (!passwordsMatch)
             return reply.status(400).send('Invalid credentials');
 
+        const tokenPayload: Interfaces.Users.JWTPayload = {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+        };
+
         const token = jwt.sign(
-            {
-                id: user.id,
-                role: user.role,
-            },
+            tokenPayload,
             environment.jwtSecret,
             { expiresIn: '1h' }
         );
@@ -100,5 +151,15 @@ export const userController = async (
             secure: process.env.NODE_ENV === 'production',
         });
         return reply.status(204).send();
+    });
+
+    fastify.get('/users/current', { preHandler: middlewares.authentication }, async (request, reply) => {
+
+        // @ts-ignore
+        const currentUser: Interfaces.Users.JWTPayload = request.user;
+
+        return reply
+            .status(200)
+            .send({ data: currentUser });
     });
 }

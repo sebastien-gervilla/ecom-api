@@ -1,17 +1,17 @@
 import { Interfaces } from '../interfaces';
 import { Collection, Entity, ManyToOne, OneToMany, PrimaryKey, Property } from '@mikro-orm/postgresql';
-import { entities } from '.';
+import { user, orderProduct } from './entities';
 
 @Entity()
 export class OrderEntity {
     @PrimaryKey()
     id!: number;
 
-    @OneToMany(() => entities.orderProduct, collection => collection.order)
-    products = new Collection<entities.orderProduct>(this);
+    @OneToMany(() => orderProduct, collection => collection.order)
+    products = new Collection<orderProduct>(this);
 
-    @ManyToOne(() => entities.user)
-    user!: entities.user;
+    @ManyToOne(() => user)
+    user!: user;
 
     @Property()
     status!: Interfaces.Orders.Status;

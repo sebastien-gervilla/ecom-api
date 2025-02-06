@@ -5,12 +5,15 @@ import { entities } from '.';
 export class ProductEntity {
     @PrimaryKey()
     id!: number;
-    
+
     @OneToMany(() => entities.orderProduct, collection => collection.product)
     orders = new Collection<entities.orderProduct>(this);
 
     @Property({ unique: true })
     name!: string;
+
+    @Property({ unique: true })
+    reference!: string;
 
     @Property()
     description!: string;

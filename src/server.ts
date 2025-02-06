@@ -34,6 +34,8 @@ const initializeServer = async () => {
 
     // Controllers
     fastify.register((fastify, options) => controllers.user(fastify, options, orm));
+    fastify.register((fastify, options) => controllers.product(fastify, options, orm));
+    fastify.register((fastify, options) => controllers.order(fastify, options, orm));
 
     // Server listening
     await fastify.listen({ port, host: '0.0.0.0' });
