@@ -23,6 +23,20 @@ export interface Create {
     }[];
 }
 
+export interface GetStatistics {
+    body: {
+        totalOrders: number;
+        bestSelling: {
+            name: string;
+            quantity: number;
+        }[];
+        stockRemaining: {
+            name: string;
+            stock: number;
+        }[];
+    };
+}
+
 export enum Status {
     IN_PROGRESS = 'in_progress',
     SHIPPED = 'shipped',

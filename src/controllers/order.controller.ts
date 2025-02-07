@@ -284,4 +284,62 @@ export const orderController = async (
             .status(204)
             .send({ message: 'Order successfully canceled.' });
     });
+
+    fastify.get('/orders/statistics', { preHandler: middlewares.authentication }, async (request, reply) => {
+        // @ts-ignore
+        const currentUser: Interfaces.Users.JWTPayload = request.user;
+        if (!currentUser || currentUser.role !== Interfaces.Users.Role.ADMINISTRATOR)
+            return reply.status(403).send("Not allowed");
+
+        const em = orm.em.fork();
+
+        try {
+            const totalOrders = await em.count(entities.order);
+
+            // Get best-selling products
+            const orderProducts = await em.find(entities.orderProduct, {}, {
+                populate: ['product'],
+            });
+
+            const productSalesMap: Record<number, { name: string; quantity: number }> = {};
+
+            for (const orderProduct of orderProducts) {
+                const productId = orderProduct.product.id;
+                if (!productSalesMap[productId]) {
+                    productSalesMap[productId] = {
+                        name: orderProduct.product.name,
+                        quantity: 0
+                    };
+                }
+                productSalesMap[productId].quantity += orderProduct.quantity;
+            }
+
+            // Convert to array and sort by quantity sold
+            const bestSelling = Object.values(productSalesMap)
+                .sort((a, b) => b.quantity - a.quantity)
+                .slice(0, 5); // Get top 5 best-selling products
+
+            // Get remaining stock of all products
+            const products = await em.find(entities.product, {});
+            const stockRemaining = products
+                .sort((a, b) => b.stock - a.stock)
+                .map(p => ({
+                    name: p.name,
+                    stock: p.stock
+                }));
+
+            const data: Interfaces.Orders.GetStatistics['body'] = {
+                totalOrders,
+                bestSelling,
+                stockRemaining
+            };
+
+            return reply.send({
+                data
+            });
+        } catch (error) {
+            console.error(error);
+            return reply.status(500).send("Error fetching statistics");
+        }
+    });
 }
