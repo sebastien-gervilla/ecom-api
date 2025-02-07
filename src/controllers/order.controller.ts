@@ -26,9 +26,9 @@ export const orderController = async (
 
         const em = orm.em.fork();
 
-        const loadedOrders = await em.findAll(
-            entities.order,
-        );
+        const loadedOrders = await em.findAll(entities.order, {
+            populate: ['products']
+        });
 
         const totalRecords = loadedOrders.length;
         const pages = Math.floor(totalRecords / pageSize) + 1;
@@ -61,4 +61,52 @@ export const orderController = async (
             });
     });
 
+    fastify.post('/orders', { preHandler: middlewares.authentication }, async (request, reply) => {
+
+        // @ts-ignore
+        const currentUser: Interfaces.Users.JWTPayload = request.user;
+        if (!currentUser)
+            return reply.status(401).send("Not auth");
+
+        const cart = request.body as Interfaces.Orders.Create['body'];
+        if (!cart.length)
+            return reply.status(400).send("Aucun produit");
+
+        const em = orm.em.fork();
+
+        const user = await em.findOne(entities.user, { id: currentUser.id });
+        if (!user)
+            return reply.status(404).send("User doesn't exist");
+
+        const products = await em.find(entities.product, {
+            id: {
+                $in: cart.map(p => p.id),
+            }
+        });
+
+        if (products.length !== cart.length)
+            return reply.status(400).send("Certains produits n'existent plus");
+
+        const order = new entities.order();
+        order.status = Interfaces.Orders.Status.IN_PROGRESS;
+        order.user = user;
+
+        for (const product of products) {
+            const cartProduct = cart.find(p => p.id === product.id);
+            if (!cartProduct)
+                return reply.status(400).send("Certains produits n'existent plus");
+
+            const orderProduct = new entities.orderProduct();
+            orderProduct.quantity = cartProduct.quantity;
+            orderProduct.order = order;
+            orderProduct.product = product;
+            order.products.add(orderProduct);
+        }
+
+        await em.persistAndFlush(order);
+
+        return reply
+            .status(201)
+            .send({ message: 'Order successfully created.' });
+    });
 }
