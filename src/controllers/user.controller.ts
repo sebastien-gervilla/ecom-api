@@ -136,7 +136,6 @@ export const userController = async (
         return reply
             .setCookie('token', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
                 path: '/',
                 maxAge: 3600,
             })
@@ -148,7 +147,6 @@ export const userController = async (
         reply.clearCookie('token', {
             path: '/',
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
         });
         return reply.status(204).send();
     });
