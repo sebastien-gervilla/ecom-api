@@ -1,0 +1,26 @@
+services:
+  order-service:
+    container_name: order-service
+    build:
+      context: .
+    ports:
+      - "9000:9000"
+    env_file:
+      - ./.env
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: postgres
+    image: postgres:14
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+
+volumes:
+  postgres-data:
