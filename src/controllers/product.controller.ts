@@ -9,6 +9,32 @@ export const productController = async (
     _: FastifyPluginOptions,
     orm: MikroORM
 ) => {
+
+    fastify.get('/products/search', { preHandler: middlewares.authentication }, async (request, reply) => {
+        const { value } = request.query as { value?: string };
+
+        if (!value || value.trim().length === 0)
+            return reply.status(400).send("Search query cannot be empty.");
+
+        // @ts-ignore
+        const currentUser: Interfaces.Users.JWTPayload = request.user;
+        if (!currentUser)
+            return reply.status(401).send("Not auth");
+
+        const em = orm.em.fork();
+
+        try {
+            const products = await em.find(entities.product, {
+                name: { $ilike: `%${value}%` } // Case-insensitive search
+            });
+
+            return reply.send({ data: products });
+        } catch (error) {
+            console.error(error);
+            return reply.status(500).send("Error searching products");
+        }
+    });
+
     fastify.get('/products', { preHandler: middlewares.authentication }, async (request, reply) => {
 
         // @ts-ignore
