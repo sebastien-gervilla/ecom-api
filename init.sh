@@ -32,7 +32,7 @@ if [ ! -f "$MIGRATION_FLAG_FILE" ]; then
     # Insérer l'utilisateur admin après les migrations
     echo "Creating admin user..."
     PGPASSWORD=$DB_PASS psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c "
-    INSERT INTO public.\"user\"(
+    INSERT INTO public.\"user_entity\"(
         first_name, 
         last_name, 
         email, 
