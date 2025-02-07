@@ -24,6 +24,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "traceResolution": false,
+    "downlevelIteration": true,
 
     "strict": true,
     "noFallthroughCasesInSwitch": true,
