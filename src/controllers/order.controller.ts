@@ -255,19 +255,30 @@ export const orderController = async (
 
         const em = orm.em.fork();
 
-        const order = await em.findOne(entities.order, {
-            id
-        });
+        try {
+            await em.transactional(async (trx) => {
+                const order = await trx.findOne(entities.order, {
+                    id
+                }, { populate: ['products.product'] });
 
-        if (!order)
-            return reply.status(404).send("Not found");
+                if (!order)
+                    return reply.status(404).send("Not found");
 
-        if (order.status === Interfaces.Orders.Status.CANCELED)
-            return reply.status(400).send("Can't cancel an already canceled order");
+                if (order.status === Interfaces.Orders.Status.CANCELED)
+                    return reply.status(400).send("Can't cancel an already canceled order");
 
-        order.status = Interfaces.Orders.Status.CANCELED;
+                for (const orderProduct of order.products) {
+                    orderProduct.product.stock += orderProduct.quantity;
+                    trx.persist(orderProduct.product);
+                }
 
-        await em.persistAndFlush(order);
+                order.status = Interfaces.Orders.Status.CANCELED;
+                await em.persistAndFlush(order);
+            });
+        } catch (error) {
+            console.log(error);
+            return reply.status(400).send("An error occured");
+        }
 
         return reply
             .status(204)
