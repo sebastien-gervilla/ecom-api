@@ -44,7 +44,7 @@ if [ ! -f "$MIGRATION_FLAG_FILE" ]; then
         'admin',
         'admin',
         'admin@gmail.com', 
-        '\$2a\$10\$E.k2.fHZozM8fDeGQCLafu8QhUD6NMrV3x0v56l1AzpYIT7Bq5RO2', 
+        '\$2b\$10\$IkDv2U4Mwkd4eIAW0AmsJuX/yuPr9cEH78Ybr/IhBqw4nr0H5k8su',
         'administrator', 
         CURRENT_TIMESTAMP, 
         CURRENT_TIMESTAMP
